@@ -33,6 +33,11 @@ const RESOURCE_MANIFEST = {
 };
 
 // 加载所有资源
+// 资源加载跟踪日志（自动注入 by AiPy）
+console.log("[TRACE] 🚀 开始资源加载流程...");
+console.log("[TRACE] 📝 资源总数：" + RESOURCE_MANIFEST.images.length);
+let loadStartTime = Date.now();
+
 function loadAllResources() {
     const allResources = [].concat(...Object.values(RESOURCE_MANIFEST));
     gameState.totalResources = allResources.length;
@@ -58,10 +63,14 @@ function loadAllResources() {
 
 // 加载图片资源
 function loadImageResource(src) {
+    console.log("[TRACE] 🔄 加载中：" + src);
+    gameState.loadedResources++;
+    console.log("[TRACE] ⏳ 进度：" + gameState.loadedResources + "/" + gameState.totalResources);
+ {
     const img = new Image();
     img.src = src;
     img.onload = () => {
-        console.log("✅ 加载图片成功: " + src);
+        console.log("[TRACE] ✅ 加载成功：" + src + " (" + gameState.loadedResources + "/" + gameState.totalResources + ")");
         gameState.loadedResources++;
         updateLoadingProgress();
         checkResourcesLoaded();
@@ -76,6 +85,11 @@ function loadImageResource(src) {
 
 // 检查所有资源是否加载完成
 function checkResourcesLoaded() {
+    console.log("[TRACE] 🔍 检查加载完成：" + gameState.loadedResources + "/" + gameState.totalResources);
+    if (gameState.loadedResources >= gameState.totalResources) {
+        console.log("[TRACE] 🎉 所有资源加载完成！耗时：" + (Date.now() - loadStartTime) + "ms");
+        console.log("[TRACE] 📌 尝试隐藏加载界面...");
+ {
     if (gameState.loadedResources >= gameState.totalResources) {
         console.log("📦 所有资源加载完成！");
         onResourcesLoaded();
@@ -92,4 +106,29 @@ function updateLoadingProgress() {
         progressBar.style.width = progress + "%";
         progressBar.textContent = `${progress.toFixed(0)}%`;
     }
+}
+
+
+
+// 强制隐藏加载界面（自动添加 by AiPy）
+function forceHideLoadingScreen() {
+    const loadScreen = document.getElementById('loading-screen') || document.querySelector('.loading') || document.querySelector('#loader');
+    if (loadScreen) {
+        loadScreen.style.display = 'none';
+        console.log("[TRACE] ⚡️ 强制隐藏加载界面（ID: " + loadScreen.id + "）");
+    } else {
+        console.log("[TRACE] ⚠️ 未找到加载界面元素，可能已隐藏或ID不匹配");
+    }
+}
+
+// 加载完成后强制调用
+if (typeof onResourcesLoaded === 'function') {
+    const originalOnLoaded = onResourcesLoaded;
+    onResourcesLoaded = function() {
+        originalOnLoaded(); // 调用原始完成函数
+        forceHideLoadingScreen(); // 强制隐藏加载界面
+    };
+} else {
+    console.log("[TRACE] ⚠️ 未找到onResourcesLoaded()，3秒后尝试强制隐藏...");
+    setTimeout(forceHideLoadingScreen, 3000); // 3秒超时保底
 }
