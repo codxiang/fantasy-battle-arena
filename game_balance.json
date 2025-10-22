@@ -1,0 +1,218 @@
+{
+  "game_settings": {
+    "max_players": 10,
+    "match_duration": 600,
+    "initial_safe_zone_radius": 1500,
+    "final_safe_zone_radius": 300,
+    "shrink_interval": 45,
+    "shrink_duration": 10,
+    "circle_damage_per_second": 5
+  },
+  
+  "heroes": {
+    "steel_wall": {
+      "name": "钢铁壁垒",
+      "type": "tank",
+      "base_attributes": {
+        "health": 1500,
+        "energy": 100,
+        "movement_speed": 220,
+        "attack_damage": 80,
+        "attack_range": 150,
+        "attack_speed": 1.2
+      },
+      "skills": {
+        "normal_attack": {
+          "damage": 80,
+          "cooldown": 0.8
+        },
+        "skill_1": {
+          "name": "盾牌猛击",
+          "description": "向前方发起冲锋，对路径上敌人造成伤害并眩晕",
+          "damage": 150,
+          "cooldown": 12,
+          "range": 400,
+          "stun_duration": 1.2
+        },
+        "skill_2": {
+          "name": "钢铁意志",
+          "description": "暂时获得伤害减免并嘲讽周围敌人",
+          "damage_reduction": 0.7,
+          "duration": 3,
+          "taunt_radius": 300,
+          "cooldown": 18
+        }
+      },
+      "talent_tree": {
+        "branches": {
+          "offense": "强攻路线",
+          "defense": "坚守路线",
+          "control": "控制路线"
+        },
+        "nodes": [
+          {
+            "id": "o1",
+            "branch": "offense",
+            "level": 3,
+            "requirement": {
+              "kills": 2,
+              "time": 120
+            },
+            "effect": {
+              "type": "attack_damage",
+              "value": 20,
+              "description": "攻击力+20"
+            }
+          },
+          {
+            "id": "d1",
+            "branch": "defense",
+            "level": 3,
+            "requirement": {
+              "kills": 1,
+              "time": 120
+            },
+            "effect": {
+              "type": "health",
+              "value": 200,
+              "description": "生命值+200"
+            }
+          },
+          {
+            "id": "c1",
+            "branch": "control",
+            "level": 3,
+            "requirement": {
+              "kills": 1,
+              "time": 180
+            },
+            "effect": {
+              "type": "skill_effect",
+              "skill": "skill_1",
+              "value": 0.3,
+              "description": "盾牌猛击眩晕时间+30%"
+            }
+          }
+        ]
+      }
+    },
+    "shadow_blade": {
+      "name": "影刃",
+      "type": "assassin",
+      "base_attributes": {
+        "health": 800,
+        "energy": 120,
+        "movement_speed": 280,
+        "attack_damage": 120,
+        "attack_range": 180,
+        "attack_speed": 1.5
+      },
+      "skills": {
+        "normal_attack": {
+          "damage": 120,
+          "cooldown": 0.6
+        },
+        "skill_1": {
+          "name": "暗影突袭",
+          "description": "快速冲向目标，造成伤害并标记敌人",
+          "damage": 200,
+          "cooldown": 8,
+          "range": 500,
+          "mark_duration": 5
+        },
+        "skill_2": {
+          "name": "潜行",
+          "description": "进入隐身状态，下一次攻击造成额外伤害",
+          "duration": 4,
+          "damage_boost": 0.5,
+          "cooldown": 15,
+          "reveal_distance": 200
+        }
+      },
+      "talent_tree": {
+        "branches": {
+          "offense": "刺杀路线",
+          "agility": "敏捷路线",
+          "stealth": "潜行路线"
+        },
+        "nodes": [
+          {
+            "id": "o1",
+            "branch": "offense",
+            "level": 3,
+            "requirement": {
+              "kills": 3,
+              "time": 120
+            },
+            "effect": {
+              "type": "attack_damage",
+              "value": 30,
+              "description": "攻击力+30"
+            }
+          },
+          {
+            "id": "a1",
+            "branch": "agility",
+            "level": 3,
+            "requirement": {
+              "kills": 1,
+              "time": 120
+            },
+            "effect": {
+              "type": "movement_speed",
+              "value": 40,
+              "description": "移动速度+40"
+            }
+          },
+          {
+            "id": "s1",
+            "branch": "stealth",
+            "level": 3,
+            "requirement": {
+              "kills": 2,
+              "time": 180
+            },
+            "effect": {
+              "type": "skill_effect",
+              "skill": "skill_2",
+              "value": 1.5,
+              "description": "潜行持续时间+1.5秒"
+            }
+          }
+        ]
+      }
+    }
+  },
+  
+  "resources": {
+    "experience_orb": {
+      "small": { "value": 5, "size": 12, "color": "#ffff00" },
+      "medium": { "value": 15, "size": 16, "color": "#ffaa00" },
+      "large": { "value": 30, "size": 20, "color": "#ff5500" }
+    },
+    "health_pack": {
+      "small": { "value": 100, "size": 14, "color": "#ff5555" },
+      "large": { "value": 300, "size": 20, "color": "#ff0000" }
+    },
+    "runes": {
+      "attack": { 
+        "duration": 15, 
+        "value": 30, 
+        "description": "攻击力+30",
+        "color": "#ff3333"
+      },
+      "speed": { 
+        "duration": 15, 
+        "value": 25, 
+        "description": "移动速度+25%",
+        "color": "#33ff33"
+      },
+      "defense": { 
+        "duration": 15, 
+        "value": 20, 
+        "description": "防御力+20%",
+        "color": "#3333ff"
+      }
+    }
+  }
+}

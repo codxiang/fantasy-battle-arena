@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>幻域争锋：天赋觉醒</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a2e;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+        #game-container {
+            width: 100vw;
+            height: 100vh;
+        }
+        #loading-screen {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            background-color: #1a1a2e;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #loading-text {
+            color: white;
+            font-size: 24px;
+            margin-top: 20px;
+        }
+        #loading-bar-container {
+            width: 500px;
+            height: 20px;
+            background-color: #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #loading-bar {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .game-overlay {
+            position: absolute;
+            display: none;
+            z-index: 100;
+        }
+        #start-screen {
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(26, 26, 46, 0.9);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .title {
+            font-size: 48px;
+            color: white;
+            margin-bottom: 40px;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
+        }
+        .hero-selection {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .hero-card {
+            width: 200px;
+            height: 300px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .hero-card:hover, .hero-card.selected {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #00ffff;
+        }
+        .hero-name {
+            color: white;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .hero-description {
+            color: #ccc;
+            font-size: 14px;
+            text-align: center;
+        }
+        .start-button {
+            padding: 15px 40px;
+            font-size: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .start-button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        .start-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading-screen">
+        <div id="loading-bar-container">
+            <div id="loading-bar"></div>
+        </div>
+        <div id="loading-text">加载游戏资源...</div>
+    </div>
+    
+    <div id="start-screen" class="game-overlay">
+        <div class="title">幻域争锋：天赋觉醒</div>
+        <div class="hero-selection">
+            <div class="hero-card" data-hero="steel_wall">
+                <div class="hero-name">钢铁壁垒</div>
+                <div class="hero-description">重装战士，高生命值，擅长防御和控制</div>
+            </div>
+            <div class="hero-card" data-hero="shadow_blade">
+                <div class="hero-name">影刃</div>
+                <div class="hero-description">灵动刺客，高机动性，擅长突袭和暗杀</div>
+            </div>
+        </div>
+        <button class="start-button" disabled>开始游戏</button>
+    </div>
+    
+    <div id="game-container"></div>
+
+    <!-- Phaser.js 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    
+    <!-- 游戏配置 -->
+    <script src="game_balance.json"></script>
+    
+    <!-- 游戏主脚本 -->
+    <script src="game.js"></script>
+</body>
+</html>

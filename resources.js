@@ -1,0 +1,613 @@
+// 资源系统实现
+export function initResourceSystem(scene) {
+    // 创建资源组
+    scene.resources = {
+        experienceOrbs: [],
+        healthPacks: [],
+        runes: []
+    };
+    
+    // 加载资源纹理
+    loadResourceTextures(scene);
+    
+    // 初始化资源生成
+    startResourceSpawning(scene);
+    
+    // 设置资源碰撞检测
+    setupResourceCollisions(scene);
+}
+
+// 加载资源纹理
+function loadResourceTextures(scene) {
+    // 经验球
+    scene.load.image('exp_orb_small', 'assets/resources/exp_small.png');
+    scene.load.image('exp_orb_medium', 'assets/resources/exp_medium.png');
+    scene.load.image('exp_orb_large', 'assets/resources/exp_large.png');
+    
+    // 血包
+    scene.load.image('health_pack_small', 'assets/resources/health_small.png');
+    scene.load.image('health_pack_large', 'assets/resources/health_large.png');
+    
+    // 战略神符
+    scene.load.image('rune_attack', 'assets/resources/rune_attack.png');
+    scene.load.image('rune_speed', 'assets/resources/rune_speed.png');
+    scene.load.image('rune_defense', 'assets/resources/rune_defense.png');
+    
+    // 潜行粒子
+    scene.load.image('stealth_particle', 'assets/particles/stealth.png');
+}
+
+// 开始资源生成
+function startResourceSpawning(scene) {
+    // 生成初始资源
+    spawnInitialResources(scene);
+    
+    // 设置定期生成
+    scene.time.addEvent({
+        delay: 5000, // 每5秒
+        callback: () => {
+            spawnExperienceOrbs(scene);
+        },
+        loop: true
+    });
+    
+    scene.time.addEvent({
+        delay: 15000, // 每15秒
+        callback: () => {
+            spawnHealthPacks(scene);
+        },
+        loop: true
+    });
+    
+    scene.time.addEvent({
+        delay: 30000, // 每30秒
+        callback: () => {
+            spawnRunes(scene);
+        },
+        loop: true
+    });
+}
+
+// 生成初始资源
+function spawnInitialResources(scene) {
+    // 生成经验球
+    for (let i = 0; i < 50; i++) {
+        spawnExperienceOrbs(scene);
+    }
+    
+    // 生成血包
+    for (let i = 0; i < 15; i++) {
+        spawnHealthPacks(scene);
+    }
+    
+    // 生成初始神符
+    spawnRunes(scene);
+}
+
+// 生成经验球
+function spawnExperienceOrbs(scene) {
+    const mapWidth = scene.map.widthInPixels;
+    const mapHeight = scene.map.heightInPixels;
+    
+    // 随机位置
+    const x = Phaser.Math.Between(100, mapWidth - 100);
+    const y = Phaser.Math.Between(100, mapHeight - 100);
+    
+    // 随机大小
+    const size = Phaser.Math.RND.pick(['small', 'medium', 'large']);
+    const value = scene.gameConfig.resources.experience_orb[size].value;
+    
+    // 创建经验球
+    const orb = scene.physics.add.sprite(x, y, `exp_orb_${size}`);
+    orb.setData('type', 'experience');
+    orb.setData('size', size);
+    orb.setData('value', value);
+    
+    // 设置物理属性
+    orb.setCollideWorldBounds(true);
+    orb.setBounce(0.5);
+    
+    // 添加到资源组
+    scene.resources.experienceOrbs.push(orb);
+    
+    // 轻微浮动动画
+    scene.tweens.add({
+        targets: orb,
+        y: y - 10,
+        duration: 1000,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.inOut'
+    });
+    
+    // 设置自动销毁时间（30秒）
+    scene.time.delayedCall(30000, () => {
+        if (orb.active) {
+            orb.destroy();
+            // 从资源组移除
+            const index = scene.resources.experienceOrbs.indexOf(orb);
+            if (index > -1) {
+                scene.resources.experienceOrbs.splice(index, 1);
+            }
+        }
+    });
+}
+
+// 生成血包
+function spawnHealthPacks(scene) {
+    const mapWidth = scene.map.widthInPixels;
+    const mapHeight = scene.map.heightInPixels;
+    
+    // 随机位置
+    const x = Phaser.Math.Between(100, mapWidth - 100);
+    const y = Phaser.Math.Between(100, mapHeight - 100);
+    
+    // 随机大小
+    const size = Phaser.Math.RND.pick(['small', 'large']);
+    const value = scene.gameConfig.resources.health_pack[size].value;
+    
+    // 创建血包
+    const healthPack = scene.physics.add.sprite(x, y, `health_pack_${size}`);
+    healthPack.setData('type', 'health');
+    healthPack.setData('size', size);
+    healthPack.setData('value', value);
+    
+    // 设置物理属性
+    healthPack.setCollideWorldBounds(true);
+    
+    // 添加到资源组
+    scene.resources.healthPacks.push(healthPack);
+    
+    // 呼吸动画
+    scene.tweens.add({
+        targets: healthPack,
+        scale: 1.1,
+        duration: 1000,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.inOut'
+    });
+    
+    // 设置自动销毁时间（60秒）
+    scene.time.delayedCall(60000, () => {
+        if (healthPack.active) {
+            healthPack.destroy();
+            // 从资源组移除
+            const index = scene.resources.healthPacks.indexOf(healthPack);
+            if (index > -1) {
+                scene.resources.healthPacks.splice(index, 1);
+            }
+        }
+    });
+}
+
+// 生成战略神符
+function spawnRunes(scene) {
+    const mapWidth = scene.map.widthInPixels;
+    const mapHeight = scene.map.heightInPixels;
+    
+    // 选择随机位置，倾向于地图中心区域
+    const centerX = mapWidth / 2;
+    const centerY = mapHeight / 2;
+    const distance = Phaser.Math.Between(0, Math.min(mapWidth, mapHeight) / 4);
+    const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
+    const x = centerX + Math.cos(angle) * distance;
+    const y = centerY + Math.sin(angle) * distance;
+    
+    // 随机神符类型
+    const runeType = Phaser.Math.RND.pick(['attack', 'speed', 'defense']);
+    const runeConfig = scene.gameConfig.resources.runes[runeType];
+    
+    // 创建神符
+    const rune = scene.physics.add.sprite(x, y, `rune_${runeType}`);
+    rune.setData('type', 'rune');
+    rune.setData('runeType', runeType);
+    rune.setData('value', runeConfig.value);
+    rune.setData('duration', runeConfig.duration);
+    
+    // 设置物理属性
+    rune.setCollideWorldBounds(true);
+    
+    // 添加到资源组
+    scene.resources.runes.push(rune);
+    
+    // 发光动画
+    const glowEffect = scene.add.graphics();
+    const glowTween = scene.tweens.add({
+        targets: { alpha: 0.5, size: rune.width * 1.5 },
+        alpha: 1,
+        size: rune.width * 2,
+        duration: 1000,
+        yoyo: true,
+        repeat: -1,
+        onUpdate: (tween) => {
+            const currentAlpha = tween.targets[0].alpha;
+            const currentSize = tween.targets[0].size;
+            
+            glowEffect.clear();
+            glowEffect.fillStyle(getRuneColor(runeType), currentAlpha * 0.3);
+            glowEffect.beginPath();
+            glowEffect.arc(rune.x, rune.y, currentSize, 0, Math.PI * 2);
+            glowEffect.fillPath();
+        }
+    });
+    
+    // 设置自动销毁时间（20秒）
+    scene.time.delayedCall(20000, () => {
+        if (rune.active) {
+            rune.destroy();
+            glowTween.stop();
+            glowEffect.destroy();
+            
+            // 从资源组移除
+            const index = scene.resources.runes.indexOf(rune);
+            if (index > -1) {
+                scene.resources.runes.splice(index, 1);
+            }
+        }
+    });
+}
+
+// 设置资源碰撞检测
+function setupResourceCollisions(scene) {
+    // 玩家与经验球碰撞
+    scene.physics.add.overlap(
+        scene.player,
+        scene.resources.experienceOrbs,
+        (player, resource) => collectResource(player, resource, scene),
+        null,
+        scene
+    );
+    
+    // 玩家与血包碰撞
+    scene.physics.add.overlap(
+        scene.player,
+        scene.resources.healthPacks,
+        (player, resource) => collectResource(player, resource, scene),
+        null,
+        scene
+    );
+    
+    // 玩家与神符碰撞
+    scene.physics.add.overlap(
+        scene.player,
+        scene.resources.runes,
+        (player, resource) => collectResource(player, resource, scene),
+        null,
+        scene
+    );
+    
+    // 资源吸引效果 - 定期检查玩家附近的资源
+    scene.time.addEvent({
+        delay: 100,
+        callback: () => applyResourceAttraction(scene),
+        loop: true
+    });
+}
+
+// 资源吸引效果
+function applyResourceAttraction(scene) {
+    const player = scene.player;
+    const attractionRange = 300; // 吸引范围
+    
+    // 对所有资源应用吸引效果
+    [
+        ...scene.resources.experienceOrbs,
+        ...scene.resources.healthPacks,
+        ...scene.resources.runes
+    ].forEach(resource => {
+        if (resource.active) {
+            const distance = Phaser.Math.Distance.Between(
+                player.x, player.y, resource.x, resource.y
+            );
+            
+            if (distance < attractionRange) {
+                // 根据距离计算吸引力强度
+                const attractionStrength = (1 - distance / attractionRange) * 200;
+                const angle = Phaser.Math.Angle.Between(
+                    resource.x, resource.y, player.x, player.y
+                );
+                
+                // 应用吸引力
+                resource.setVelocity(
+                    Math.cos(angle) * attractionStrength,
+                    Math.sin(angle) * attractionStrength
+                );
+            }
+        }
+    });
+}
+
+// 收集资源
+function collectResource(player, resource, scene) {
+    const resourceType = resource.getData('type');
+    
+    switch (resourceType) {
+        case 'experience':
+            // 增加经验
+            const expValue = resource.getData('value');
+            player.setData('experience', player.getData('experience') + expValue);
+            showFloatingText(scene, player.x, player.y - 40, `+${expValue} XP`, '#ffff00');
+            
+            // 检查升级
+            checkPlayerLevelUp(player, scene);
+            break;
+            
+        case 'health':
+            // 恢复生命值
+            const healthValue = resource.getData('value');
+            const currentHealth = player.getData('health');
+            const maxHealth = player.getData('maxHealth');
+            const newHealth = Math.min(currentHealth + healthValue, maxHealth);
+            
+            player.setData('health', newHealth);
+            showFloatingText(scene, player.x, player.y - 40, `+${newHealth - currentHealth} HP`, '#00ff00');
+            break;
+            
+        case 'rune':
+            // 应用神符效果
+            const runeType = resource.getData('runeType');
+            const runeValue = resource.getData('value');
+            const runeDuration = resource.getData('duration');
+            
+            applyRuneEffect(player, runeType, runeValue, runeDuration, scene);
+            showFloatingText(
+                scene, 
+                player.x, 
+                player.y - 40, 
+                `${getRuneName(runeType)} +${runeValue}%`, 
+                getRuneColor(runeType)
+            );
+            break;
+    }
+    
+    // 销毁资源
+    resource.destroy();
+    
+    // 从资源组移除
+    for (const resourceGroup of Object.values(scene.resources)) {
+        const index = resourceGroup.indexOf(resource);
+        if (index > -1) {
+            resourceGroup.splice(index, 1);
+            break;
+        }
+    }
+}
+
+// 应用神符效果
+function applyRuneEffect(player, runeType, value, duration, scene) {
+    // 保存原始属性（如果尚未保存）
+    if (!player.getData('baseAttributes')) {
+        player.setData('baseAttributes', {
+            attackDamage: player.getData('config').base_attributes.attack_damage,
+            movementSpeed: player.getData('config').base_attributes.movement_speed,
+            damageReduction: player.getData('damageReduction') || 0
+        });
+    }
+    
+    const baseAttributes = player.getData('baseAttributes');
+    
+    // 移除已有的相同类型神符效果
+    if (player.getData(`activeRune_${runeType}`)) {
+        clearTimeout(player.getData(`activeRune_${runeType}`));
+    }
+    
+    // 应用新效果
+    switch (runeType) {
+        case 'attack':
+            const attackBoost = baseAttributes.attackDamage * (value / 100);
+            player.getData('config').base_attributes.attack_damage = baseAttributes.attackDamage + attackBoost;
+            break;
+            
+        case 'speed':
+            const speedBoost = baseAttributes.movementSpeed * (value / 100);
+            player.getData('config').base_attributes.movement_speed = baseAttributes.movementSpeed + speedBoost;
+            player.setMaxVelocity(player.getData('config').base_attributes.movement_speed);
+            break;
+            
+        case 'defense':
+            player.setData('damageReduction', baseAttributes.damageReduction + (value / 100));
+            break;
+    }
+    
+    // 创建效果指示器
+    createRuneIndicator(player, runeType, scene);
+    
+    // 设置效果结束定时器
+    const timerId = setTimeout(() => {
+        // 恢复原始属性
+        switch (runeType) {
+            case 'attack':
+                player.getData('config').base_attributes.attack_damage = baseAttributes.attackDamage;
+                break;
+                
+            case 'speed':
+                player.getData('config').base_attributes.movement_speed = baseAttributes.movementSpeed;
+                player.setMaxVelocity(baseAttributes.movementSpeed);
+                break;
+                
+            case 'defense':
+                player.setData('damageReduction', baseAttributes.damageReduction);
+                break;
+        }
+        
+        // 移除效果指示器
+        removeRuneIndicator(player, runeType, scene);
+        player.setData(`activeRune_${runeType}`, null);
+        
+        showFloatingText(
+            scene, 
+            player.x, 
+            player.y - 40, 
+            `${getRuneName(runeType)} 效果结束`, 
+            '#ff9900'
+        );
+    }, duration * 1000);
+    
+    // 保存定时器ID
+    player.setData(`activeRune_${runeType}`, timerId);
+}
+
+// 创建神符效果指示器
+function createRuneIndicator(player, runeType, scene) {
+    // 检查是否已有指示器
+    if (player.getData(`runeIndicator_${runeType}`)) {
+        return;
+    }
+    
+    const indicatorWidth = 40;
+    const indicatorHeight = 20;
+    const indicators = player.getData('activeRuneIndicators') || [];
+    const indicatorX = -50 - (indicators.length * (indicatorWidth + 10));
+    
+    // 创建指示器背景
+    const indicator = scene.add.graphics();
+    indicator.fillStyle(0x333333, 0.8);
+    indicator.fillRoundedRect(indicatorX, -60, indicatorWidth, indicatorHeight, 5);
+    
+    // 绘制神符类型
+    indicator.fillStyle(getRuneColor(runeType), 1);
+    indicator.fillRoundedRect(indicatorX + 5, -55, 10, 10, 3);
+    
+    // 添加到玩家容器
+    const indicatorContainer = scene.add.container(player.x, player.y);
+    indicatorContainer.add(indicator);
+    scene.add.existing(indicatorContainer);
+    
+    // 保存引用
+    player.setData(`runeIndicator_${runeType}`, indicatorContainer);
+    indicators.push(runeType);
+    player.setData('activeRuneIndicators', indicators);
+    
+    // 跟随玩家
+    scene.events.on('update', () => {
+        if (indicatorContainer && player.active) {
+            indicatorContainer.setPosition(player.x, player.y);
+        }
+    });
+}
+
+// 移除神符效果指示器
+function removeRuneIndicator(player, runeType, scene) {
+    const indicator = player.getData(`runeIndicator_${runeType}`);
+    if (indicator) {
+        indicator.destroy();
+        player.setData(`runeIndicator_${runeType}`, null);
+    }
+    
+    // 更新其他指示器位置
+    const indicators = player.getData('activeRuneIndicators') || [];
+    const index = indicators.indexOf(runeType);
+    if (index > -1) {
+        indicators.splice(index, 1);
+        player.setData('activeRuneIndicators', indicators);
+    }
+}
+
+// 检查玩家升级
+function checkPlayerLevelUp(player, scene) {
+    const currentLevel = player.getData('level');
+    const currentExp = player.getData('experience');
+    const expToNextLevel = player.getData('experienceToNextLevel');
+    
+    if (currentExp >= expToNextLevel) {
+        // 升级
+        const newLevel = currentLevel + 1;
+        player.setData('level', newLevel);
+        
+        // 更新经验
+        const remainingExp = currentExp - expToNextLevel;
+        player.setData('experience', remainingExp);
+        player.setData('experienceToNextLevel', Math.floor(expToNextLevel * 1.5));
+        
+        // 提升属性
+        const healthIncrease = Math.floor(player.getData('maxHealth') * 0.15);
+        player.setData('maxHealth', player.getData('maxHealth') + healthIncrease);
+        player.setData('health', player.getData('maxHealth'));
+        
+        // 显示升级信息
+        showFloatingText(scene, player.x, player.y - 50, `LEVEL UP! ${newLevel}`, '#ffff00');
+        
+        // 检查天赋是否可用
+        checkTalentAvailability(scene);
+    }
+}
+
+// 检查天赋是否可用
+function checkTalentAvailability(scene) {
+    // 如果天赋面板已打开，更新显示
+    if (scene.talentPanel && scene.talentPanel.node.style.display !== 'none') {
+        updateTalentNodes(scene);
+    }
+}
+
+// 更新天赋节点显示
+function updateTalentNodes(scene) {
+    const player = scene.player;
+    const heroConfig = player.getData('config');
+    const talentNodes = heroConfig.talent_tree.nodes;
+    
+    talentNodes.forEach(node => {
+        const nodeElement = document.querySelector(`.talent-node[data-talent-id="${node.id}"]`);
+        if (nodeElement) {
+            const isUnlocked = checkTalentRequirements(player, node);
+            
+            // 更新节点状态
+            if (isUnlocked && !player.getData(`talent_${node.id}`)) {
+                nodeElement.style.borderColor = '#4CAF50';
+                nodeElement.style.cursor = 'pointer';
+            }
+        }
+    });
+}
+
+// 检查天赋解锁条件
+function checkTalentRequirements(player, node) {
+    const playerKills = player.getData('kills') || 0;
+    const gameMinutes = scene.time.now / 60000; // 游戏时间（分钟）
+    
+    return playerKills >= node.requirement.kills && gameMinutes >= node.requirement.time / 60;
+}
+
+// 获取神符名称
+function getRuneName(runeType) {
+    const runeNames = {
+        'attack': '攻击神符',
+        'speed': '速度神符',
+        'defense': '防御神符'
+    };
+    return runeNames[runeType] || runeType;
+}
+
+// 获取神符颜色
+function getRuneColor(runeType) {
+    const runeColors = {
+        'attack': 0xff3333, // 红
+        'speed': 0x33ff33, // 绿
+        'defense': 0x3366ff  // 蓝
+    };
+    return runeColors[runeType] || 0xffffff;
+}
+
+// 显示浮动文字
+function showFloatingText(scene, x, y, text, color) {
+    const floatingText = scene.add.text(x, y, text, {
+        fontSize: '16px',
+        fill: color,
+        stroke: '#000',
+        strokeThickness: 2
+    });
+    
+    floatingText.setOrigin(0.5);
+    
+    // 添加上升并淡出动画
+    scene.tweens.add({
+        targets: floatingText,
+        y: y - 50,
+        alpha: 0,
+        duration: 1000,
+        onComplete: () => {
+            floatingText.destroy();
+        }
+    });
+}
