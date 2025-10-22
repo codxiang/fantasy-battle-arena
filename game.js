@@ -32,7 +32,7 @@ function onResourcesLoaded() {
     if (!gameState.canvas) {
         console.error("[STARTGAME] ❌ 找不到canvas元素！ID是否为'gameCanvas'？");
         alert("游戏错误：找不到画布元素，请刷新页面重试");
-        return;
+// 修复非法return语句：        return;
     }
     console.log("[STARTGAME] ✅ 找到canvas元素：", gameState.canvas);
     
