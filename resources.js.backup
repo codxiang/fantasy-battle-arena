@@ -1,11 +1,3 @@
-// 自动添加的资源路径配置 (AiPy修复)
-const RESOURCE_PATHS = {
-    images: 'assets/images/',
-    sounds: 'assets/sounds/',
-    fonts: 'assets/fonts/',
-    scripts: 'assets/scripts/'
-};
-
 // 资源系统实现
 export function initResourceSystem(scene) {
     // 创建资源组
