@@ -1,3 +1,11 @@
+const RESOURCE_PATHS = {
+    images: 'assets/images/',
+    heroes: 'assets/images/heroes/',
+    particles: 'assets/images/particles/',
+    resources: 'assets/images/resources/',
+    tiles: 'assets/images/tiles/'
+};
+
 // 资源管理文件 (自动重建 by AiPy)
 // 确保依赖的路径变量已定义
 if (typeof RESOURCE_PATHS === "undefined") {
