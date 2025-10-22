@@ -1,6 +1,35 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+
+    <style>
+        /* 画布居中修复样式（自动添加 by AiPy） */
+        #gameCanvas {
+            display: block !important;  /* 确保块级显示 */
+            margin: 20px auto !important;  /* 上下边距20px，左右自动居中 */
+            position: relative !important;  /* 相对定位，避免被其他元素挤压 */
+            top: 0 !important;  /* 重置顶部偏移 */
+            left: 0 !important;  /* 重置左侧偏移 */
+            border: 2px solid #4CAF50 !important;  /* 绿色边框，便于观察 */
+            z-index: 100 !important;  /* 提高层级，避免被其他元素遮挡 */
+            visibility: visible !important;  /* 强制可见 */
+            overflow: visible !important;  /* 确保内容不被裁剪 */
+        }
+        
+        /* 修复可能导致画布偏移的父元素样式 */
+        body {
+            margin: 0;  /* 重置body默认margin */
+            padding: 0;  /* 重置body默认padding */
+            overflow-x: hidden;  /* 防止水平滚动条挤压 */
+        }
+        
+        /* 移除可能挤压画布的元素样式 */
+        #loading-screen, .hidden-element {
+            display: none !important;  /* 隐藏可能遮挡画布的加载界面 */
+        }
+    </style>
+    
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>幻域争锋：天赋觉醒</title>
