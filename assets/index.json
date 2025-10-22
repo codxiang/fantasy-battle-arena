@@ -3,7 +3,14 @@
     "images": [],
     "sounds": [],
     "fonts": [],
-    "scripts": []
+    "scripts": [],
+    "image_paths": {
+      "base": "assets/images/",
+      "heroes": "assets/images/heroes/",
+      "particles": "assets/images/particles/",
+      "resources": "assets/images/resources/",
+      "tiles": "assets/images/tiles/"
+    }
   },
   "last_updated": "2025-10-22",
   "version": "1.0.0"

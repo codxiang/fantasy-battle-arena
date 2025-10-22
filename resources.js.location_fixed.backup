@@ -1,12 +1,5 @@
 // 自动添加的资源路径配置 (AiPy修复)
-// 自动修复的资源路径配置 (AiPy)
 const RESOURCE_PATHS = {
-    images: 'assets/images/',
-    heroes: 'assets/images/heroes/',
-    particles: 'assets/images/particles/',
-    resources: 'assets/images/resources/',
-    tiles: 'assets/images/tiles/'
-};
     images: 'assets/images/',
     sounds: 'assets/sounds/',
     fonts: 'assets/fonts/',
