@@ -24,10 +24,72 @@ function onResourcesLoaded() {
 }
 
 // 开始游戏
-function startGame() {
-    console.log("🎮 游戏开始！");
-    // 游戏主循环初始化
+ {
+    console.log("[STARTGAME] 开始执行startGame()...");
+    
+    // 1. 检查画布
+    gameState.canvas = document.getElementById("gameCanvas");
+    if (!gameState.canvas) {
+        console.error("[STARTGAME] ❌ 找不到canvas元素！ID是否为'gameCanvas'？");
+        alert("游戏错误：找不到画布元素，请刷新页面重试");
+        return;
+    }
+    console.log("[STARTGAME] ✅ 找到canvas元素：", gameState.canvas);
+    
+    // 2. 获取绘图上下文
+    gameState.ctx = gameState.canvas.getContext("2d");
+    if (!gameState.ctx) {
+        console.error("[STARTGAME] ❌ 无法获取2D绘图上下文！");
+        alert("游戏错误：无法初始化绘图功能");
+        return;
+    }
+    console.log("[STARTGAME] ✅ 获取绘图上下文成功");
+    
+    // 3. 强制设置画布背景和文字样式（确保可见）
+    gameState.ctx.fillStyle = "#1a73e8"; // 蓝色背景（高对比度）
+    gameState.ctx.fillRect(0, 0, gameState.canvas.width, gameState.canvas.height);
+    
+    gameState.ctx.fillStyle = "#ffffff"; // 白色文字（确保可见）
+    gameState.ctx.font = "bold 36px Arial, sans-serif"; // 大号粗体字体
+    gameState.ctx.textAlign = "center";
+    gameState.ctx.textBaseline = "middle";
+    
+    // 4. 绘制启动成功文字
+    gameState.ctx.fillText("游戏启动成功！", gameState.canvas.width/2, gameState.canvas.height/2 - 40);
+    gameState.ctx.font = "24px Arial";
+    gameState.ctx.fillText("画布尺寸: " + gameState.canvas.width + "×" + gameState.canvas.height, gameState.canvas.width/2, gameState.canvas.height/2);
+    gameState.ctx.fillText("点击画布继续...", gameState.canvas.width/2, gameState.canvas.height/2 + 40);
+    console.log("[STARTGAME] ✅ 已绘制启动文字");
+    
+    // 5. 标记游戏状态
+    gameState.isRunning = true;
+    gameState.isLoaded = true;
+    console.log("[STARTGAME] 🎉 游戏启动流程完成");
+    
+    // 6. 添加画布点击事件（确保交互正常）
+    gameState.canvas.addEventListener("click", () => {
+        gameState.ctx.fillStyle = "#1a73e8";
+        gameState.ctx.fillRect(0, 0, gameState.canvas.width, gameState.canvas.height);
+        gameState.ctx.fillText("开始游戏逻辑...", gameState.canvas.width/2, gameState.canvas.height/2);
+        console.log("[STARTGAME] 画布被点击，开始游戏逻辑");
+    });
 }
+
+// 强制调用startGame()的多重保障
+console.log("[INIT] 尝试启动游戏...");
+window.addEventListener("load", () => {
+    console.log("[INIT] 页面加载完成，1秒后调用startGame()");
+    setTimeout(startGame, 1000); // 延迟1秒确保资源加载
+});
+
+// 直接调用一次（防止事件监听失败）
+if (document.readyState === "complete") {
+    console.log("[INIT] 页面已就绪，立即调用startGame()");
+    startGame();
+} else {
+    console.log("[INIT] 页面未就绪，等待load事件");
+}
+
 
 // 初始化游戏
 function initGame() {
