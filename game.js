@@ -208,3 +208,5 @@ function update() {
     // 控制台实时显示玩家位置
     console.log(`[GAME] 玩家位置: (${gameState.player.x.toFixed(0)}, ${gameState.player.y.toFixed(0)})`);
 }
+
+}
