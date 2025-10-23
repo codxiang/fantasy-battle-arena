@@ -41,7 +41,7 @@ function onResourcesLoaded() {
     if (!gameState.ctx) {
         console.error("[STARTGAME] ❌ 无法获取2D绘图上下文！");
         alert("游戏错误：无法初始化绘图功能");
-        return;
+// 修复非法return：return;
     }
     console.log("[STARTGAME] ✅ 获取绘图上下文成功");
     
