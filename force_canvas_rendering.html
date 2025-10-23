@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>游戏画布测试</title>
+    <style>canvas { border: 2px solid #4CAF50; margin: 20px auto; display: block; }</style>
+</head>
+<body>
+    <canvas id="testCanvas" width="800" height="600"></canvas>
+    <script>
+        const ctx = document.getElementById('testCanvas').getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.font = '24px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('测试页面加载成功！', 400, 300);
+        ctx.fillText('绿框显示正常 ✅', 400, 340);
+    </script>
+</body>
+</html>
