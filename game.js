@@ -131,7 +131,7 @@ const gameConfig = {
 
 // 启动游戏
 const game = console.log("[PHASER] 🚀 开始初始化Phaser引擎...");
-new Phaser.Game(gameConfig);
+
 console.log("[PHASER] 游戏引擎初始化完成！");
 
 // 基础场景函数（确保游戏能启动）
@@ -153,25 +153,33 @@ function create() {
     console.log("[PHASER] ✨ 进入create场景创建阶段");
     
     try {
-        // 创建测试文本（验证渲染功能）
-        this.add.text(400, 200, "Phaser初始化跟踪", { 
-            font: "30px Arial", 
-            fill: "#ff0000" 
+        // 强制设置背景颜色
+        this.cameras.main.setBackgroundColor('#1a237e');
+        
+        // 创建标题文字（大字号，红色）
+        const titleText = this.add.text(400, 150, '幻想战斗竞技场', {
+            font: 'bold 48px Arial',
+            fill: '#ff0000',
+            stroke: '#ffffff',
+            strokeThickness: 6
+        });
+        titleText.setOrigin(0.5);
+        console.log("[PHASER] ✅ 标题文字创建成功");
+        
+        // 创建玩家角色（红色方块）
+        gameState.player = this.add.rectangle(400, 350, 50, 50, 0xff3300).setOrigin(0.5);
+        console.log("[PHASER] ✅ 玩家角色创建成功");
+        
+        // 创建操作提示
+        this.add.text(400, 500, '按方向键移动角色', {
+            font: '24px Arial',
+            fill: '#ffffff'
         }).setOrigin(0.5);
         
-        // 尝试显示测试图片
-        if (this.textures.exists('grassTile')) {
-            this.add.image(400, 300, 'grassTile').setScale(2);
-            console.log("[PHASER] 🖼️ 测试图片显示成功");
-        } else {
-            this.add.text(400, 300, "测试图片丢失", { font: "20px Arial", fill: "#ff0000" }).setOrigin(0.5);
-            console.error("[PHASER] ❌ 测试图片不存在于纹理缓存");
-        }
-        
-        console.log("[PHASER] ✅ create函数执行完成");
-    } catch (e) {
-        console.error("[PHASER] 💥 create函数执行出错：" + e.stack);
-        alert("游戏初始化失败：" + e.message);
+        console.log("[PHASER] 🎉 create函数执行完成");
+    } catch (error) {
+        console.error("[PHASER] 💥 create函数执行出错:", error);
+        alert("create函数错误：" + error.message);
     }
 }
 
