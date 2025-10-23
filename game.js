@@ -141,18 +141,55 @@ function preload() {
 }
 
 function create() {
-    console.log("[PHASER] 创建游戏场景...");
-    // 在绿框中央显示测试文字和图片
-    this.add.text(400, 300, "游戏启动成功！", { font: "24px Arial", fill: "#fff" }).setOrigin(0.5);
-    if (this.textures.exists('test')) {
-        this.add.image(400, 350, 'test').setScale(0.5); // 显示测试图片
-        console.log("[PHASER] ✅ 测试图片加载成功！");
-    } else {
-        this.add.text(400, 350, "测试图片加载失败", { font: "16px Arial", fill: "#ff0000" }).setOrigin(0.5);
-        console.log("[PHASER] ❌ 测试图片加载失败！");
-    }
+    console.log("[PHASER] ✨ 开始创建游戏场景...");
+    
+    // 1. 设置背景和标题
+    this.cameras.main.setBackgroundColor('#1a237e'); // 深蓝色背景（区分引擎默认色）
+    
+    // 2. 创建游戏标题和说明文字
+    this.add.text(400, 150, "幻想战斗竞技场", { 
+        font: "40px Arial", 
+        fill: "#ffffff", 
+        stroke: "#ffd700", 
+        strokeThickness: 3 
+    }).setOrigin(0.5);
+    
+    this.add.text(400, 220, "按 ←→↑↓ 键移动角色", { 
+        font: "20px Arial", 
+        fill: "#cccccc" 
+    }).setOrigin(0.5);
+    
+    // 3. 创建玩家角色（红色方块，可移动）
+    gameState.player = this.add.rectangle(400, 350, 50, 50, 0xff3300).setOrigin(0.5);
+    
+    // 4. 添加键盘控制
+    gameState.cursors = this.input.keyboard.createCursorKeys();
+    
+    // 5. 标记游戏为运行中
+    gameState.isRunning = true;
+    console.log("[GAME] 🎮 游戏状态已启动！玩家角色创建完成");
 }
 
 function update() {
-    // 游戏主循环
+    if (!gameState.isRunning || !gameState.player) return;
+    
+    // 键盘控制逻辑（←→↑↓ 移动玩家）
+    if (gameState.cursors.left.isDown) {
+        gameState.player.x -= 5;
+    } else if (gameState.cursors.right.isDown) {
+        gameState.player.x += 5;
+    }
+    
+    if (gameState.cursors.up.isDown) {
+        gameState.player.y -= 5;
+    } else if (gameState.cursors.down.isDown) {
+        gameState.player.y += 5;
+    }
+    
+    // 边界限制（防止玩家移出画布）
+    gameState.player.x = Phaser.Math.Clamp(gameState.player.x, 25, 775);
+    gameState.player.y = Phaser.Math.Clamp(gameState.player.y, 25, 575);
+    
+    // 控制台实时显示玩家位置
+    console.log(`[GAME] 玩家位置: (${gameState.player.x.toFixed(0)}, ${gameState.player.y.toFixed(0)})`);
 }
