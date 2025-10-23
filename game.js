@@ -113,3 +113,46 @@ function loadScript(src, callback) {
 
 // 页面加载完成后初始化游戏
 window.addEventListener("load", initGame);
+
+
+// Phaser引擎初始化（自动添加 by AiPy）
+const gameConfig = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    parent: 'gameCanvas', // 绑定到绿框画布
+    scene: {
+        preload: preload,
+        create: create,
+        update: update
+    },
+    backgroundColor: '#1a1a1a'
+};
+
+// 启动游戏
+const game = new Phaser.Game(gameConfig);
+console.log("[PHASER] 游戏引擎初始化完成！");
+
+// 基础场景函数（确保游戏能启动）
+function preload() {
+    console.log("[PHASER] 预加载资源...");
+    // 加载一个测试图片（确保资源路径正确）
+    this.load.image('test', 'assets/images/tiles/grass_tile.png');
+}
+
+function create() {
+    console.log("[PHASER] 创建游戏场景...");
+    // 在绿框中央显示测试文字和图片
+    this.add.text(400, 300, "游戏启动成功！", { font: "24px Arial", fill: "#fff" }).setOrigin(0.5);
+    if (this.textures.exists('test')) {
+        this.add.image(400, 350, 'test').setScale(0.5); // 显示测试图片
+        console.log("[PHASER] ✅ 测试图片加载成功！");
+    } else {
+        this.add.text(400, 350, "测试图片加载失败", { font: "16px Arial", fill: "#ff0000" }).setOrigin(0.5);
+        console.log("[PHASER] ❌ 测试图片加载失败！");
+    }
+}
+
+function update() {
+    // 游戏主循环
+}
