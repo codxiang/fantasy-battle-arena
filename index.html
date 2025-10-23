@@ -25,7 +25,7 @@
         
         /* 移除可能挤压画布的元素样式 */
         #loading-screen, .hidden-element {
-            display: none !important;  /* 隐藏可能遮挡画布的加载界面 */
+            display: block; visibility: visible; opacity: 1; z-index: 100 !important;  /* 隐藏可能遮挡画布的加载界面 */
         }
     </style>
     
@@ -76,7 +76,7 @@
         }
         .game-overlay {
             position: absolute;
-            display: none;
+            display: block; visibility: visible; opacity: 1; z-index: 100;
             z-index: 100;
         }
         #start-screen {
@@ -181,100 +181,80 @@
     <script src="game.js"></script>
 
     <script>
-        // 兜底Phaser初始化（自动注入 by AiPy）
+        
+    <script>
+        // 兜底Phaser初始化（带全流程跟踪日志 by AiPy）
         window.addEventListener('load', function() {
-            console.log("[FALLBACK] 尝试兜底初始化Phaser...");
+            console.log("[TRACE] 0. 兜底代码开始执行...");
             
-            // 检查Phaser是否已加载
+            // 检查Phaser是否加载
+            console.log("[TRACE] 1. 检查Phaser库...");
             if (typeof Phaser === 'undefined') {
-                console.error("[FALLBACK] ❌ Phaser未加载！");
-                alert("错误：Phaser库加载失败，请检查网络或CDN");
+                console.error("[TRACE] ❌ Phaser未加载！请检查CDN链接");
+                alert("Phaser加载失败！\n请刷新页面或检查网络");
                 return;
             }
+            console.log("[TRACE] ✅ Phaser已加载（版本：" + Phaser.VERSION + "）");
             
-            // 检查gameCanvas是否存在
+            // 检查canvas元素
+            console.log("[TRACE] 2. 查找gameCanvas元素...");
             const canvas = document.getElementById('gameCanvas');
             if (!canvas) {
-                console.error("[FALLBACK] ❌ 找不到gameCanvas元素！");
-                alert("错误：游戏画布不存在，请检查index.html");
+                console.error("[TRACE] ❌ 未找到ID为'gameCanvas'的元素");
+                alert("游戏画布不存在！\n请检查index.html");
                 return;
             }
+            console.log("[TRACE] ✅ 找到canvas元素（宽：" + canvas.width + ", 高：" + canvas.height + "）");
             
-            // 创建Phaser实例（强制绑定到gameCanvas）
-            const game = new Phaser.Game({
-                type: Phaser.AUTO,
-                width: 800,
-                height: 600,
-                parent: 'gameCanvas', // 关键：绑定到绿框画布
-                backgroundColor: '#1a237e',
-                scene: {
-                    preload: preload,
-                    create: create,
-                    update: update
-                },
-                physics: {
-                    default: 'arcade',
-                    arcade: {
-                        gravity: { y: 0 },
-                        debug: false
+            // 验证canvas样式（确保可见）
+            console.log("[TRACE] 3. 验证canvas样式...");
+            const computedStyle = window.getComputedStyle(canvas);
+            console.log("[TRACE] canvas样式：display=" + computedStyle.display + ", visibility=" + computedStyle.visibility + ", opacity=" + computedStyle.opacity);
+            if (computedStyle.display === 'none' || computedStyle.visibility === 'hidden' || computedStyle.opacity < 0.1) {
+                console.error("[TRACE] ❌ canvas仍被隐藏！强制设置可见...");
+                canvas.style.display = 'block';
+                canvas.style.visibility = 'visible';
+                canvas.style.opacity = '1';
+                console.log("[TRACE] ✅ 已强制设置canvas可见");
+            }
+            
+            // 创建Phaser实例
+            console.log("[TRACE] 4. 创建Phaser实例...");
+            try {
+                const game = new Phaser.Game({
+                    type: Phaser.AUTO,
+                    width: 800,
+                    height: 600,
+                    parent: 'gameCanvas', // 强制绑定画布
+                    backgroundColor: '#1a237e',
+                    scene: {
+                        preload: function() {
+                            console.log("[TRACE] 5. 进入preload资源加载...");
+                            // 加载测试图片（故意简化，避免资源问题）
+                            this.load.image('test', 'https://via.placeholder.com/50'); // 使用CDN图片避免本地资源问题
+                        },
+                        create: function() {
+                            console.log("[TRACE] 6. 进入create场景创建...");
+                            // 创建简单文本（不依赖本地资源）
+                            this.add.text(400, 300, '兜底代码执行成功！', {
+                                font: '36px Arial',
+                                fill: '#ff0000'
+                            }).setOrigin(0.5);
+                            console.log("[TRACE] ✅ 已创建测试文字");
+                        },
+                        update: function() {
+                            // 空更新函数
+                        }
                     }
-                }
-            });
-            
-            // 场景函数
-            function preload() {
-                this.load.image('grassTile', 'assets/images/tiles/grass_tile.png');
-                console.log("[FALLBACK] 📥 开始预加载资源...");
+                });
+                console.log("[TRACE] ✅ Phaser实例创建成功！");
+            } catch (error) {
+                console.error("[TRACE] ❌ Phaser初始化失败：", error);
+                alert("游戏初始化失败！\n" + error.message);
             }
-            
-            function create() {
-                console.log("[FALLBACK] ✨ 进入create场景创建阶段");
-                
-                // 创建标题
-                this.add.text(400, 150, '幻想战斗竞技场', {
-                    font: 'bold 48px Arial',
-                    fill: '#ff0000',
-                    stroke: '#ffffff',
-                    strokeThickness: 6
-                }).setOrigin(0.5);
-                
-                // 创建玩家角色
-                this.player = this.add.rectangle(400, 350, 50, 50, 0xff3300).setOrigin(0.5);
-                
-                // 添加键盘控制
-                this.cursors = this.input.keyboard.createCursorKeys();
-                
-                // 创建操作提示
-                this.add.text(400, 500, '按方向键移动角色', {
-                    font: '24px Arial',
-                    fill: '#ffffff'
-                }).setOrigin(0.5);
-                
-                console.log("[FALLBACK] 🎉 场景创建完成！玩家角色已就位");
-            }
-            
-            function update() {
-                // 玩家移动逻辑
-                if (this.cursors.left.isDown) {
-                    this.player.x -= 5;
-                } else if (this.cursors.right.isDown) {
-                    this.player.x += 5;
-                }
-                
-                if (this.cursors.up.isDown) {
-                    this.player.y -= 5;
-                } else if (this.cursors.down.isDown) {
-                    this.player.y += 5;
-                }
-                
-                // 边界限制
-                this.player.x = Phaser.Math.Clamp(this.player.x, 25, 775);
-                this.player.y = Phaser.Math.Clamp(this.player.y, 25, 575);
-            }
-            
-            console.log("[FALLBACK] ✅ Phaser兜底初始化成功！");
         });
     </script>
+    
     
 </body>
 </html>
