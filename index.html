@@ -179,5 +179,102 @@
     
     <!-- 游戏主脚本 -->
     <script src="game.js"></script>
+
+    <script>
+        // 兜底Phaser初始化（自动注入 by AiPy）
+        window.addEventListener('load', function() {
+            console.log("[FALLBACK] 尝试兜底初始化Phaser...");
+            
+            // 检查Phaser是否已加载
+            if (typeof Phaser === 'undefined') {
+                console.error("[FALLBACK] ❌ Phaser未加载！");
+                alert("错误：Phaser库加载失败，请检查网络或CDN");
+                return;
+            }
+            
+            // 检查gameCanvas是否存在
+            const canvas = document.getElementById('gameCanvas');
+            if (!canvas) {
+                console.error("[FALLBACK] ❌ 找不到gameCanvas元素！");
+                alert("错误：游戏画布不存在，请检查index.html");
+                return;
+            }
+            
+            // 创建Phaser实例（强制绑定到gameCanvas）
+            const game = new Phaser.Game({
+                type: Phaser.AUTO,
+                width: 800,
+                height: 600,
+                parent: 'gameCanvas', // 关键：绑定到绿框画布
+                backgroundColor: '#1a237e',
+                scene: {
+                    preload: preload,
+                    create: create,
+                    update: update
+                },
+                physics: {
+                    default: 'arcade',
+                    arcade: {
+                        gravity: { y: 0 },
+                        debug: false
+                    }
+                }
+            });
+            
+            // 场景函数
+            function preload() {
+                this.load.image('grassTile', 'assets/images/tiles/grass_tile.png');
+                console.log("[FALLBACK] 📥 开始预加载资源...");
+            }
+            
+            function create() {
+                console.log("[FALLBACK] ✨ 进入create场景创建阶段");
+                
+                // 创建标题
+                this.add.text(400, 150, '幻想战斗竞技场', {
+                    font: 'bold 48px Arial',
+                    fill: '#ff0000',
+                    stroke: '#ffffff',
+                    strokeThickness: 6
+                }).setOrigin(0.5);
+                
+                // 创建玩家角色
+                this.player = this.add.rectangle(400, 350, 50, 50, 0xff3300).setOrigin(0.5);
+                
+                // 添加键盘控制
+                this.cursors = this.input.keyboard.createCursorKeys();
+                
+                // 创建操作提示
+                this.add.text(400, 500, '按方向键移动角色', {
+                    font: '24px Arial',
+                    fill: '#ffffff'
+                }).setOrigin(0.5);
+                
+                console.log("[FALLBACK] 🎉 场景创建完成！玩家角色已就位");
+            }
+            
+            function update() {
+                // 玩家移动逻辑
+                if (this.cursors.left.isDown) {
+                    this.player.x -= 5;
+                } else if (this.cursors.right.isDown) {
+                    this.player.x += 5;
+                }
+                
+                if (this.cursors.up.isDown) {
+                    this.player.y -= 5;
+                } else if (this.cursors.down.isDown) {
+                    this.player.y += 5;
+                }
+                
+                // 边界限制
+                this.player.x = Phaser.Math.Clamp(this.player.x, 25, 775);
+                this.player.y = Phaser.Math.Clamp(this.player.y, 25, 575);
+            }
+            
+            console.log("[FALLBACK] ✅ Phaser兜底初始化成功！");
+        });
+    </script>
+    
 </body>
 </html>
