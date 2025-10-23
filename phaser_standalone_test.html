@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Phaser独立测试</title>
+    <!-- 强制使用最新Phaser CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        #gameContainer {
+            width: 800px;
+            height: 600px;
+            margin: 20px auto;
+            border: 4px solid #4CAF50; /* 更粗的绿边 */
+            position: relative;
+            overflow: hidden;
+        }
+        .debug-info {
+            margin-top: 10px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 Phaser 3 独立测试页面</h1>
+    <div id="gameContainer"></div>
+    <div class="debug-info">此页面不依赖任何外部JS文件，用于验证Phaser核心功能</div>
+
+    <script>
+        // 独立Phaser游戏实例（完全隔离）
+        window.addEventListener('load', function() {
+            console.log("🚀 开始初始化独立Phaser实例...");
+            
+            // 游戏配置
+            const config = {
+                type: Phaser.AUTO,
+                width: 800,
+                height: 600,
+                parent: 'gameContainer', // 绑定到指定容器
+                backgroundColor: '#1a237e',
+                scene: {
+                    preload: preload,
+                    create: create,
+                    update: update
+                },
+                physics: {
+                    default: 'arcade',
+                    arcade: {
+                        gravity: { y: 0 },
+                        debug: false
+                    }
+                }
+            };
+
+            // 创建游戏
+            const game = new Phaser.Game(config);
+            
+            // 场景函数
+            function preload() {
+                console.log("📥 预加载资源阶段开始...");
+                // 加载一个测试图片
+                this.load.image('testTile', 'assets/images/tiles/grass_tile.png');
+                this.load.on('filecomplete', function (key, type) {
+                    console.log(`✅ 资源加载完成: ${type} - ${key}`);
+                });
+            }
+            
+            function create() {
+                console.log("✨ 进入场景创建阶段");
+                
+                // 添加标题文字
+                this.add.text(400, 100, '独立测试成功！', {
+                    font: 'bold 48px Arial',
+                    fill: '#ffeb3b',
+                    stroke: '#000000',
+                    strokeThickness: 6
+                }).setOrigin(0.5).setShadow(3, 3, '#000000', 2);
+                
+                // 添加子标题
+                this.add.text(400, 180, 'Phaser引擎正常运行', {
+                    font: '24px Arial',
+                    fill: '#ffffff'
+                }).setOrigin(0.5);
+                
+                // 创建玩家角色（红色方块）
+                this.player = this.physics.add.rectangle(400, 350, 50, 50, 0xff3300);
+                this.player.setOrigin(0.5);
+                
+                // 添加键盘控制
+                this.cursors = this.input.keyboard.createCursorKeys();
+                
+                // 添加操作提示
+                this.add.text(400, 550, '←→↑↓ 移动 | 按F12看控制台日志', {
+                    font: '18px Arial',
+                    fill: '#cccccc'
+                }).setOrigin(0.5);
+                
+                console.log("🎉 场景创建完成！玩家角色已就位");
+            }
+            
+            function update() {
+                // 玩家移动逻辑
+                if (this.cursors.left.isDown) {
+                    this.player.x -= 5;
+                } else if (this.cursors.right.isDown) {
+                    this.player.x += 5;
+                }
+                
+                if (this.cursors.up.isDown) {
+                    this.player.y -= 5;
+                } else if (this.cursors.down.isDown) {
+                    this.player.y += 5;
+                }
+                
+                // 边界限制
+                this.player.x = Phaser.Math.Clamp(this.player.x, 25, 775);
+                this.player.y = Phaser.Math.Clamp(this.player.y, 25, 575);
+                
+                // 控制台实时输出
+                console.log(`[DEBUG] 玩家位置: (${Math.round(this.player.x)}, ${Math.round(this.player.y)})`);
+            }
+            
+            console.log("✅ Phaser独立实例初始化成功！");
+        });
+    </script>
+</body>
+</html>
