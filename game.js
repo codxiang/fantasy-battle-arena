@@ -130,47 +130,54 @@ const gameConfig = {
 };
 
 // 启动游戏
-const game = new Phaser.Game(gameConfig);
+const game = console.log("[PHASER] 🚀 开始初始化Phaser引擎...");
+new Phaser.Game(gameConfig);
 console.log("[PHASER] 游戏引擎初始化完成！");
 
 // 基础场景函数（确保游戏能启动）
 function preload() {
-    console.log("[PHASER] 预加载资源...");
-    // 加载一个测试图片（确保资源路径正确）
-    this.load.image('test', 'assets/images/tiles/grass_tile.png');
+    console.log("[PHASER] 📥 进入preload资源加载阶段");
+    
+    // 加载测试图片并跟踪状态
+    this.load.image('grassTile', 'assets/images/tiles/grass_tile.png');
+    this.load.on('filecomplete-image-grassTile', function () {
+        console.log("[PHASER] ✅ 测试图片加载成功：grass_tile.png");
+    }, this);
+    this.load.on('loaderror', function (file) {
+        console.error("[PHASER] ❌ 资源加载失败：" + file.src);
+        alert("资源加载失败：" + file.src + "，请检查文件路径");
+    }, this);
 }
 
 function create() {
-    console.log("[PHASER] ✨ 开始创建游戏场景...");
+    console.log("[PHASER] ✨ 进入create场景创建阶段");
     
-    // 1. 设置背景和标题
-    this.cameras.main.setBackgroundColor('#1a237e'); // 深蓝色背景（区分引擎默认色）
-    
-    // 2. 创建游戏标题和说明文字
-    this.add.text(400, 150, "幻想战斗竞技场", { 
-        font: "40px Arial", 
-        fill: "#ffffff", 
-        stroke: "#ffd700", 
-        strokeThickness: 3 
-    }).setOrigin(0.5);
-    
-    this.add.text(400, 220, "按 ←→↑↓ 键移动角色", { 
-        font: "20px Arial", 
-        fill: "#cccccc" 
-    }).setOrigin(0.5);
-    
-    // 3. 创建玩家角色（红色方块，可移动）
-    gameState.player = this.add.rectangle(400, 350, 50, 50, 0xff3300).setOrigin(0.5);
-    
-    // 4. 添加键盘控制
-    gameState.cursors = this.input.keyboard.createCursorKeys();
-    
-    // 5. 标记游戏为运行中
-    gameState.isRunning = true;
-    console.log("[GAME] 🎮 游戏状态已启动！玩家角色创建完成");
+    try {
+        // 创建测试文本（验证渲染功能）
+        this.add.text(400, 200, "Phaser初始化跟踪", { 
+            font: "30px Arial", 
+            fill: "#ff0000" 
+        }).setOrigin(0.5);
+        
+        // 尝试显示测试图片
+        if (this.textures.exists('grassTile')) {
+            this.add.image(400, 300, 'grassTile').setScale(2);
+            console.log("[PHASER] 🖼️ 测试图片显示成功");
+        } else {
+            this.add.text(400, 300, "测试图片丢失", { font: "20px Arial", fill: "#ff0000" }).setOrigin(0.5);
+            console.error("[PHASER] ❌ 测试图片不存在于纹理缓存");
+        }
+        
+        console.log("[PHASER] ✅ create函数执行完成");
+    } catch (e) {
+        console.error("[PHASER] 💥 create函数执行出错：" + e.stack);
+        alert("游戏初始化失败：" + e.message);
+    }
 }
 
 function update() {
+    console.log("[PHASER] 🔄 update循环执行（每帧）");
+ {
     if (!gameState.isRunning || !gameState.player) return;
     
     // 键盘控制逻辑（←→↑↓ 移动玩家）
